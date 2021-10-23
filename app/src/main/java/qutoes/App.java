@@ -56,18 +56,18 @@ public class App {
     public static void getQuote(String path){
         // create Gson instance
         Gson gson = new Gson();
-        FileReader fileReader = null;
+        FileReader fileread = null;
         try {
             // create a reader
-            fileReader = new FileReader(path);
-            Qutos[] quotes = gson.fromJson(fileReader, Qutos[].class);
+           fileread = new FileReader(path);
+            Qutos[] quotes = gson.fromJson(fileread, Qutos[].class);
             int randomQuote = (int)(Math.random() * quotes.length);
 
             System.out.println(quotes[randomQuote]);
             //  System.out.println(quotes[randomQuote].text);
 
             // close reader
-            fileReader.close();
+            fileread.close();
         } catch (Exception ex) {
 
             ex.printStackTrace();
@@ -114,9 +114,9 @@ public class App {
     static void printBufferedReaderContect(BufferedReader in) throws IOException {
         String line = in.readLine();
         Addqutoe newQuote=new Addqutoe(line);
-       FileWriter newQuteadder=new FileWriter("C:\\Users\\STUDENT\\401java\\quotes\\app\\src\\main\\resources\\data.json");
-        newQuteadder.write(String.valueOf(newQuote));
-        newQuteadder.close();
+       FileWriter newwriter=new FileWriter("C:\\Users\\STUDENT\\401java\\quotes\\app\\src\\main\\resources\\data.json");
+        newwriter.write(String.valueOf(newQuote));
+        newwriter.close();
         while(line != null){
             System.out.println(line);
             line = in.readLine();
