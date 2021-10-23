@@ -5,9 +5,14 @@ package qutoes;
 
 
 
-import java.io.FileReader;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import com.google.gson.Gson;
+import org.checkerframework.checker.units.qual.A;
 import qutoes.Qutos;
 
 
@@ -15,30 +20,108 @@ public class App {
 
 
     public static void main(String[] args) {
+    if(avilablenet()){
+        System.out.println("hi from net");
+        String url=  "http://ron-swanson-quotes.herokuapp.com/v2/quotes";
+        sendGetRequest(url);
+
+
+    }else{
+        System.out.println("hi from Json");
         String path ="C:\\Users\\STUDENT\\401java\\quotes\\app\\src\\main\\resources\\data.json";
-
         getQuote(path);
+    }
 
 
+
+
+
+
+    }
+
+    public static boolean avilablenet(){
+        try {
+            final URL url = new URL("http://www.google.com");
+            final URLConnection conn = url.openConnection();
+            conn.connect();
+            conn.getInputStream().close();
+            return true;
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     public static void getQuote(String path){
         // create Gson instance
         Gson gson = new Gson();
-        FileReader fileReader = null;
+        FileReader fileread = null;
         try {
             // create a reader
-            fileReader = new FileReader(path);
-            Qutos[] quotes = gson.fromJson(fileReader, Qutos[].class);
+           fileread = new FileReader(path);
+            Qutos[] quotes = gson.fromJson(fileread, Qutos[].class);
             int randomQuote = (int)(Math.random() * quotes.length);
 
             System.out.println(quotes[randomQuote]);
             //  System.out.println(quotes[randomQuote].text);
 
             // close reader
-            fileReader.close();
+            fileread.close();
         } catch (Exception ex) {
+
             ex.printStackTrace();
         }
     }
+
+    static void sendGetRequest(String urlString){
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection connection = setUpConnectionObject(url);
+            if(connection.getResponseCode() == 200){
+                BufferedReader in = getBufferedReaderFromConnection(connection);
+                printBufferedReaderContect(in);
+                in.close();
+            }
+        } catch (MalformedURLException e) {
+            System.out.println("Sorry, there was a problem creating the URL object,the error was:");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("Sorry, there was a problem opening the connection from the URL object, the error was:");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+
+    }
+
+    static HttpURLConnection setUpConnectionObject(URL url) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+        return connection;
+    }
+
+    static BufferedReader getBufferedReaderFromConnection(HttpURLConnection connection) throws IOException {
+        InputStream inputStream = connection.getInputStream();
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);   // needs an input stream
+        BufferedReader in = new BufferedReader(inputStreamReader);    // I need to provide the reader with a stream reader
+        //  BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+        return in;
+    }
+
+    static void printBufferedReaderContect(BufferedReader in) throws IOException {
+        String line = in.readLine();
+        Addqutoe newQuote=new Addqutoe(line);
+       FileWriter newwriter=new FileWriter("C:\\Users\\STUDENT\\401java\\quotes\\app\\src\\main\\resources\\data.json");
+        newwriter.write(String.valueOf(newQuote));
+        newwriter.close();
+        while(line != null){
+            System.out.println(line);
+            line = in.readLine();
+        }
+    }
+
+
 }
